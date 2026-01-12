@@ -7,9 +7,14 @@ export default function AuthScreen(){
 
     const [isSignUp, setIsSignUp]=useState<boolean>(false);
 
+    const handleAuth= async()=>{
+
+
+    };//this handleAuth function will take care of creating and signing In to an account, call it when user presses Sign In button
+
     const handleSwitchMode=()=>{
         setIsSignUp((prev)=>!prev);
-    }
+    };
     return (
     <KeyboardAvoidingView behavior={Platform.OS==="android"?"padding":"height"} style={style.container}>
 
@@ -30,7 +35,7 @@ export default function AuthScreen(){
             mode="outlined"
             style={style.inputs}/>
 
-            <Button mode="contained" style={style.button}>{isSignUp? "Sign Up":"Sign In"}</Button>
+            <Button mode="contained" style={style.button} onPress={handleAuth}>{isSignUp? "Sign Up":"Sign In"}</Button>
             <Button mode="text" onPress={handleSwitchMode} style={style.switchModeButton}>{isSignUp?"Already have an account? Sign In":"Don't have an account? Sign Up"}</Button>
         </View>
 
