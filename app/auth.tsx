@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { KeyboardAvoidingView, Platform, View,StyleSheet} from "react-native";
-import {Button, Text, TextInput} from "react-native-paper";
+import {Button, Card, Text, TextInput} from "react-native-paper";
+import {LinearGradient} from "expo-linear-gradient";
 
 
 export default function AuthScreen(){
@@ -16,16 +17,23 @@ export default function AuthScreen(){
         setIsSignUp((prev)=>!prev);
     };
     return (
-    <KeyboardAvoidingView behavior={Platform.OS==="android"?"padding":"height"} style={style.container}>
+        <LinearGradient 
+        colors={["#7a4a00","#5c3700"]} style={style.container}>
+
+        <KeyboardAvoidingView behavior={Platform.OS==="android"?"padding":"height"} style={style.container}>
 
         <View style={style.content}>
-            <Text style={style.title} variant="headlineMedium">{isSignUp? "Create Account":"Welcome Back"}</Text>
+            <Text style={style.appTitle}>ALLIO</Text>
+            <Card style={style.card}>
+                <Card.Content>
+                 <Text style={style.title} variant="headlineMedium">{isSignUp? "Create Account":"Welcome Back"}</Text>
             <TextInput 
             label="Email" 
             autoCapitalize="none" 
             keyboardType="email-address" 
             placeholder="example@gmail.com"
             mode="outlined"
+            outlineColor="#7a4a00"
             style={style.inputs}/>
 
              <TextInput 
@@ -33,20 +41,24 @@ export default function AuthScreen(){
             autoCapitalize="none" 
             keyboardType="email-address" 
             mode="outlined"
+            outlineColor="#7a4a00"
             style={style.inputs}/>
 
-            <Button mode="contained" style={style.button} onPress={handleAuth}>{isSignUp? "Sign Up":"Sign In"}</Button>
-            <Button mode="text" onPress={handleSwitchMode} style={style.switchModeButton}>{isSignUp?"Already have an account? Sign In":"Don't have an account? Sign Up"}</Button>
+            <Button mode="contained"  onPress={handleAuth} style={style.button} labelStyle={style.buttontext}>{isSignUp? "Sign Up":"Sign In"}</Button>
+            <Button mode="text" onPress={handleSwitchMode} style={style.switchModeButton} textColor="#7a4a00">{isSignUp?"Already have an account? Sign In":"Don't have an account? Sign Up"}</Button>
+                
+                </Card.Content>
+                </Card>   
         </View>
-
     </KeyboardAvoidingView>
+        </LinearGradient>
+
     );
 }
 
 const style=StyleSheet.create({
     container:{
              flex:1,
-             backgroundColor:"#f5f5f5"
     },//container is for whole screen!
 
     content:{
@@ -55,9 +67,28 @@ const style=StyleSheet.create({
         justifyContent:"center"
     },//content for the whole view of the screen
 
+    appTitle:{
+        textAlign:"center",
+        fontSize:40,
+        fontWeight:800,
+        marginBottom:40,
+        letterSpacing:2,
+        color:"#ffd84d"
+
+    },
+
+    card:{
+        paddingVertical:8,
+        borderRadius:16,
+        elevation:6,
+        backgroundColor:"#ffffff"
+    },
+
      title:{
        textAlign:"center",//brings the text in the center
        marginBottom:24, //some distance from inputs
+       fontWeight:"800",
+       color:"#5c3700",
     },//title for text Welcome Back
 
     inputs:{
@@ -65,12 +96,22 @@ const style=StyleSheet.create({
     },
 
     button:{
-       marginTop:8,
+        backgroundColor:"#ffd84d",
+        marginTop:8,
+        height:56,
+        justifyContent:"center",
+        
+
+    },
+    buttontext:{
+        fontSize:18,
+        color:"#5c3700",
+        fontWeight:"800",
+        letterSpacing:0.5,
+
     },
 
     switchModeButton:{
         marginTop:16,
     },
-
-
 });
