@@ -1,15 +1,30 @@
 import { useState } from "react";
 import { KeyboardAvoidingView, Platform, View,StyleSheet} from "react-native";
-import {Button, Card, Text, TextInput} from "react-native-paper";
+import {Button, Card, Text, TextInput, useTheme} from "react-native-paper";
 import {LinearGradient} from "expo-linear-gradient";
 
 
 export default function AuthScreen(){
 
     const [isSignUp, setIsSignUp]=useState<boolean>(false);
+    const [email, setEmail]=useState<string>("");
+     const [password, setPassword ]=useState<string>("");
+     const [error, setError]=useState<string | null>("");
+
+     const theme=useTheme();
 
     const handleAuth= async()=>{
+      if(!email || !password){
+        setError("please fill in all the fields");
+        return;
+      }
 
+      if(password.length<6){
+        setError("Password must be at least 6 characters long");
+        return;
+      }
+
+      setError(null);
 
     };//this handleAuth function will take care of creating and signing In to an account, call it when user presses Sign In button
 
@@ -34,7 +49,9 @@ export default function AuthScreen(){
             placeholder="example@gmail.com"
             mode="outlined"
             outlineColor="#7a4a00"
-            style={style.inputs}/>
+            style={style.inputs}
+            onChangeText={setEmail}// onchangetext when we try to input email
+            />
 
              <TextInput 
             label="Password" 
@@ -42,7 +59,11 @@ export default function AuthScreen(){
             keyboardType="email-address" 
             mode="outlined"
             outlineColor="#7a4a00"
-            style={style.inputs}/>
+            style={style.inputs}
+            onChangeText={setPassword}
+            />
+
+            {error && <Text style={{color:theme.colors.error}}>{error}</Text>}
 
             <Button mode="contained"  onPress={handleAuth} style={style.button} labelStyle={style.buttontext}>{isSignUp? "Sign Up":"Sign In"}</Button>
             <Button mode="text" onPress={handleSwitchMode} style={style.switchModeButton} textColor="#7a4a00">{isSignUp?"Already have an account? Sign In":"Don't have an account? Sign Up"}</Button>
