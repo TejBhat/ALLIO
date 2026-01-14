@@ -43,13 +43,13 @@ const style=StyleSheet.create({
         borderRadius:16,
         justifyContent:"center",
         alignItems:"center",
-        backgroundColor:"#7a4a00",
+        backgroundColor:"#fffaf3",
         elevation:4,
 
     },
 
     cardText:{
-        color:"#ffd84d",
+        color:"#7a4a00",
         fontSize:16,
         fontWeight:"700",
         textAlign:"center",
