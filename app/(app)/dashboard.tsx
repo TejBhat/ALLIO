@@ -4,7 +4,8 @@ import { Card } from "react-native-paper";
 export default function DashboardScreen(){
     return(
      <View style={style.container}>
-        <View style={style.grid}>
+        <Card style={style.bigCard}>
+            <View style={style.grid}>
             <Card style={style.card}>
                 <Text style={style.cardText}>Idea Notes</Text>
             </Card>
@@ -21,16 +22,25 @@ export default function DashboardScreen(){
                 <Text style={style.cardText}>Today/Overview</Text>
             </Card>
         </View>
+        </Card>
+        
      </View>
     );
 }
 const style=StyleSheet.create({
     container:{
        flex:1,
-       padding:16,
-       backgroundColor:"#fffaf3",
+       padding:18,
+       backgroundColor:"#5e4522",
        justifyContent:"center",
     },
+    bigCard:{
+       padding:16,
+       borderRadius:16,
+       backgroundColor:"#b08848",
+       justifyContent:"center",
+    },
+
     grid:{
          flexDirection:"row",
          flexWrap:"wrap",
@@ -39,19 +49,19 @@ const style=StyleSheet.create({
     card:{
         width:"47%",
         height:140,
-        marginBottom:16,
+        marginBottom:18,
         borderRadius:16,
         justifyContent:"center",
         alignItems:"center",
-        backgroundColor:"#fffaf3",
+        backgroundColor:"#7a4a00",
         elevation:4,
 
     },
 
     cardText:{
-        color:"#7a4a00",
+        color:"#ffd84d",
         fontSize:16,
-        fontWeight:"700",
+        fontWeight:"800",
         textAlign:"center",
 
     },
