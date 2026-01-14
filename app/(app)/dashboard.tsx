@@ -5,20 +5,20 @@ export default function DashboardScreen(){
     return(
      <View style={style.container}>
         <View style={style.grid}>
-            <Card>
-                <Text>Idea Notes</Text>
+            <Card style={style.card}>
+                <Text style={style.cardText}>Idea Notes</Text>
             </Card>
 
-            <Card>
-                <Text>Calender Check</Text>
+            <Card style={style.card}>
+                <Text style={style.cardText}>Calender Check</Text>
             </Card>
 
-            <Card>
-                <Text>Water Intake</Text>
+            <Card style={style.card}>
+                <Text style={style.cardText}>Water Intake</Text>
             </Card>
 
-            <Card>
-                <Text>Today/Overview</Text>
+            <Card style={style.card}>
+                <Text style={style.cardText}>Today/Overview</Text>
             </Card>
         </View>
      </View>
@@ -35,5 +35,24 @@ const style=StyleSheet.create({
          flexDirection:"row",
          flexWrap:"wrap",
          justifyContent:"space-between",
+    },
+    card:{
+        width:"47%",
+        height:140,
+        marginBottom:16,
+        borderRadius:16,
+        justifyContent:"center",
+        alignItems:"center",
+        backgroundColor:"#7a4a00",
+        elevation:4,
+
+    },
+
+    cardText:{
+        color:"#ffd84d",
+        fontSize:16,
+        fontWeight:"700",
+        textAlign:"center",
+
     },
 });
