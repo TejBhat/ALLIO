@@ -4,6 +4,7 @@ import {Button, Card, Text, TextInput, useTheme} from "react-native-paper";
 import {LinearGradient} from "expo-linear-gradient";
 
 
+
 export default function AuthScreen(){
 
     const [isSignUp, setIsSignUp]=useState<boolean>(false);
@@ -14,18 +15,14 @@ export default function AuthScreen(){
      const theme=useTheme();
 
     const handleAuth= async()=>{
-      if(!email || !password){
-        setError("please fill in all the fields");
-        return;
-      }
-
-      if(password.length<6){
-        setError("Password must be at least 6 characters long");
-        return;
-      }
-
-      setError(null);
-
+        if(!email || !password){
+            setError("please fill in all the fields");
+            return;
+        }
+        if(password.length<6){
+            setError("Password must be at least 6 characters long");
+        }
+        setError(null);
     };//this handleAuth function will take care of creating and signing In to an account, call it when user presses Sign In button
 
     const handleSwitchMode=()=>{
