@@ -6,6 +6,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Octicons from '@expo/vector-icons/Octicons';
 import { useRef,useState } from "react"; 
+import {router} from "expo-router";
 
 export default function DashboardScreen(){
       const [menuOpen, setMenuOpen]=useState(false);
@@ -38,27 +39,38 @@ export default function DashboardScreen(){
             <Text style={[style.menuItems,style.logout]}>Logout</Text>
         </Animated.View>
         <Card style={style.bigCard}>
-            <View style={style.grid}>
-            <Card style={style.card}>
+            <Card.Content>
+                  <View style={style.grid}>
+                    <Pressable onPress={()=>router.push("/notes")}>
+                        <Card style={style.card}>
                 <SimpleLineIcons name="notebook" size={26} color="#ffd84d" />
                 <Text style={style.cardText}>Idea Notes</Text>
             </Card>
-
-            <Card style={style.card}>
+                </Pressable>
+                <Pressable onPress={()=>router.push("/calendarcheck")}>
+                    <Card style={style.card}>
                 <FontAwesome name="calendar-check-o" size={26} color="#ffd84d" />
                 <Text style={style.cardText}>Calendar Check</Text>
             </Card>
-
-            <Card style={style.card}>
+                </Pressable>
+            
+            <Pressable onPress={()=>router.push("/waterintake")}>
+                <Card style={style.card}>
                 <MaterialCommunityIcons name="water-check" size={26} color="#ffd84d" />
                 <Text style={style.cardText}>Water Intake</Text>
             </Card>
+            </Pressable>
 
-            <Card style={style.card}>
+          <Pressable onPress={()=>router.push("/overview")}>
+          <Card style={style.card}>
                 <Ionicons name="today-outline" size={26} color="#ffd84d" />
                 <Text style={style.cardText}>Today/Overview</Text>
             </Card>
+         </Pressable>
+            
         </View>
+            </Card.Content>
+          
         </Card>
         
      </View>
@@ -67,7 +79,7 @@ export default function DashboardScreen(){
 const style=StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f0f4f8",
+    backgroundColor: "#f0e68c",
     paddingHorizontal: 20,
     
   },
@@ -93,6 +105,9 @@ const style=StyleSheet.create({
   },
 
   bigCard:{
+    paddingVertical:20,
+    borderRadius:16,
+    elevation:6,
     flex:1,
     justifyContent:"center",
   },
@@ -133,7 +148,7 @@ const style=StyleSheet.create({
     left: 0,
     width: 220,
     height: "100%",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#f0e68c",
     paddingTop: 90,
     paddingHorizontal: 24,
     zIndex: 15,
