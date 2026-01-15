@@ -4,10 +4,14 @@ import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import Octicons from '@expo/vector-icons/Octicons';
 
 export default function DashboardScreen(){
     return(
      <View style={style.container}>
+        <View style={style.header}>
+        <Octicons name="three-bars" size={24} color="black" />
+        </View>
         <Card style={style.bigCard}>
             <View style={style.grid}>
             <Card style={style.card}>
@@ -41,6 +45,11 @@ const style=StyleSheet.create({
        padding:18,
        backgroundColor:"#ffffff",
        justifyContent:"center",
+    },
+
+    header:{
+    alignItems:"flex-start",
+    marginBottom:16,
     },
 
     bigCard:{
