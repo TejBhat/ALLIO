@@ -38,30 +38,30 @@ export default function DashboardScreen(){
             <Text style={style.menuItems}>Appearance</Text>
             <Text style={[style.menuItems,style.logout]}>Logout</Text>
         </Animated.View>
-        <Card style={style.bigCard}>
-            <Card.Content>
+        
+            <View style={style.content}>
                   <View style={style.grid}>
-                    <Pressable onPress={()=>router.push("/notes")}>
+                    <Pressable style={style.cardContainer} onPress={()=>router.push("/notes")}>
                         <Card style={style.card}>
                 <SimpleLineIcons name="notebook" size={26} color="#ffd84d" />
                 <Text style={style.cardText}>Idea Notes</Text>
             </Card>
                 </Pressable>
-                <Pressable onPress={()=>router.push("/calendarcheck")}>
+                <Pressable style={style.cardContainer} onPress={()=>router.push("/calendarcheck")}>
                     <Card style={style.card}>
                 <FontAwesome name="calendar-check-o" size={26} color="#ffd84d" />
                 <Text style={style.cardText}>Calendar Check</Text>
             </Card>
                 </Pressable>
             
-            <Pressable onPress={()=>router.push("/waterintake")}>
+            <Pressable style={style.cardContainer} onPress={()=>router.push("/waterintake")}>
                 <Card style={style.card}>
                 <MaterialCommunityIcons name="water-check" size={26} color="#ffd84d" />
                 <Text style={style.cardText}>Water Intake</Text>
             </Card>
             </Pressable>
 
-          <Pressable onPress={()=>router.push("/overview")}>
+          <Pressable style={style.cardContainer} onPress={()=>router.push("/overview")}>
           <Card style={style.card}>
                 <Ionicons name="today-outline" size={26} color="#ffd84d" />
                 <Text style={style.cardText}>Today/Overview</Text>
@@ -69,19 +69,15 @@ export default function DashboardScreen(){
          </Pressable>
             
         </View>
-            </Card.Content>
-          
-        </Card>
-        
+            </View>
      </View>
     );
 }
 const style=StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f0e68c",
+    backgroundColor: "#000000",
     paddingHorizontal: 20,
-    
   },
 
   menuButton:{
@@ -97,17 +93,14 @@ const style=StyleSheet.create({
     backgroundColor: "#ffffff",
     justifyContent: "center",
     alignItems: "center",
-    elevation: 2,
+    elevation: 3,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 3,
   },
 
-  bigCard:{
-    paddingVertical:20,
-    borderRadius:16,
-    elevation:6,
+  content:{
     flex:1,
     justifyContent:"center",
   },
@@ -120,24 +113,27 @@ const style=StyleSheet.create({
   },
 
   card: {
-    width: "47%",
-    height: 160,
-    borderRadius: 20,
+    width: "100%",
+    height:170,
+    borderRadius: 22,
     backgroundColor: "#7a4a00",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 20,
-    elevation: 3,
+    elevation: 4,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+  },
+  cardContainer:{
+    width:"47%",
+    marginBottom:22,
   },
 
   cardText: {
-    marginTop: 12,
+    marginTop: 10,
     color: "#ffd84d",
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: "600",
     textAlign: "center",
   },
@@ -148,7 +144,7 @@ const style=StyleSheet.create({
     left: 0,
     width: 220,
     height: "100%",
-    backgroundColor: "#f0e68c",
+    backgroundColor: "#7a4a00",
     paddingTop: 90,
     paddingHorizontal: 24,
     zIndex: 15,
@@ -163,14 +159,14 @@ const style=StyleSheet.create({
     fontSize: 17,
     fontWeight: "700",
     marginBottom: 26,
-    color: "#374151",
+    color: "#ffff00",
   },
   firstMenuItem:{
    marginTop:30,
   },
 
   logout: {
-    color: "#DC2626",
+    color: "#ffff00",
     marginTop:1,
     fontSize:17,
     fontWeight:"700",
