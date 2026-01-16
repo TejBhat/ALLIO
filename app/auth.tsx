@@ -16,7 +16,7 @@ export default function AuthScreen(){
 
     const handleAuth= async()=>{
         if(!email || !password){
-            setError("please fill in all the fields");
+            setError("Please fill in all the fields");
             return;
         }
         if(password.length<6){
