@@ -15,7 +15,7 @@ export default function AuthScreen(){
      const theme=useTheme();
 
     const handleAuth= async()=>{
-        if(!email || !password){
+         if(!email || !password){
             setError("Please fill in all the fields");
             return;
         }
