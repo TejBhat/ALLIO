@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { TextInput } from "react-native-paper";
 import { useTheme } from "../context/ThemeContext";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 export default function AccountScreen() {
   const { currentTheme } = useTheme();
@@ -38,6 +39,16 @@ export default function AccountScreen() {
     setIsEditing(false);
   };
 
+  // Get initials for avatar
+  const getInitials = () => {
+    if (!username) return "?";
+    const names = username.trim().split(" ");
+    if (names.length >= 2) {
+      return (names[0][0] + names[1][0]).toUpperCase();
+    }
+    return username.slice(0, 2).toUpperCase();
+  };
+
   return (
     <View style={[styles.container, { backgroundColor: currentTheme.backgroundColor }]}>
       <View style={styles.header}>
@@ -49,6 +60,20 @@ export default function AccountScreen() {
       </View>
 
       <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
+        {/* Profile Photo Section */}
+        <View style={styles.profileSection}>
+          <View style={[styles.avatarContainer, { backgroundColor: currentTheme.cardBackground }]}>
+            {username ? (
+              <Text style={[styles.initialsText, { color: currentTheme.accentColor }]}>
+                {getInitials()}
+              </Text>
+            ) : (
+              <MaterialIcons name="person" size={60} color={currentTheme.accentColor} />
+            )}
+          </View>
+          <Text style={styles.photoHint}>Profile photo coming soon</Text>
+        </View>
+
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: currentTheme.accentColor }]}>Username</Text>
           
@@ -89,12 +114,6 @@ export default function AccountScreen() {
             </View>
           )}
         </View>
-
-        {/* Placeholder for photo section - can be added later */}
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: currentTheme.accentColor }]}>Profile Photo</Text>
-          <Text style={styles.comingSoon}>Coming soon</Text>
-        </View>
       </ScrollView>
     </View>
   );
@@ -132,6 +151,33 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     padding: 20,
+  },
+  profileSection: {
+    alignItems: "center",
+    marginBottom: 40,
+    marginTop: 20,
+  },
+  avatarContainer: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    marginBottom: 12,
+  },
+  initialsText: {
+    fontSize: 48,
+    fontWeight: "800",
+  },
+  photoHint: {
+    fontSize: 12,
+    color: "#999",
+    fontStyle: "italic",
   },
   section: {
     marginBottom: 30,
@@ -195,10 +241,5 @@ const styles = StyleSheet.create({
   saveBtnText: {
     fontSize: 16,
     fontWeight: "600",
-  },
-  comingSoon: {
-    fontSize: 14,
-    color: "#999",
-    fontStyle: "italic",
   },
 });
