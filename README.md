@@ -1,4 +1,4 @@
-ALLIO is an all-in-one productivity mobile application
+ALLIO is an all-in-one productivity mobile application.The app focuses on simplicity, usability, and modern mobile UI principles, making productivity effortless and distraction-free.
 
 # Tech Stack
 
