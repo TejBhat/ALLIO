@@ -6,8 +6,6 @@ Frontend: React Native, Expo
 
 UI Library: React Native Paper
 
-Authentication & Backend: Supabase
-
 # Features
 
 📝 Idea Notes for quick thoughts and planning
