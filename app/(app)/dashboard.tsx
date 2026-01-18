@@ -1,14 +1,16 @@
-import { View, Text, StyleSheet, Pressable, Animated} from "react-native";
-import { Card } from "react-native-paper";
-import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import Octicons from '@expo/vector-icons/Octicons';
-import { useRef,useState } from "react"; 
-import {router} from "expo-router";
+import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
+import { router } from "expo-router";
+import { useRef, useState } from "react";
+import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
+import { Card } from "react-native-paper";
+import { useTheme } from "../context/ThemeContext";
 
 export default function DashboardScreen(){
+      const { currentTheme, toggleTheme } = useTheme();
       const [menuOpen, setMenuOpen]=useState(false);
       const slide=useRef(new Animated.Value(-260)).current;
       
@@ -21,7 +23,7 @@ export default function DashboardScreen(){
         setMenuOpen(!menuOpen);
       };
     return(
-     <View style={style.container}>
+     <View style={[style.container, { backgroundColor: currentTheme.backgroundColor }]}>
         
             <Pressable style={style.menuButton} onPress={toggleMenu}>
                 <View style={style.menuIcon}>
@@ -32,39 +34,59 @@ export default function DashboardScreen(){
     
         {menuOpen && <Pressable style={style.overlay} onPress={toggleMenu}/>}
 
-        <Animated.View style={[style.sideMenu,{transform:[{translateX:slide}]}]}>
-            <Text style={[style.menuItems, style.firstMenuItem]}>Account</Text>
-             <Text style={style.menuItems}>About ALLIO</Text>
-            <Text style={style.menuItems}>Appearance</Text>
-            <Text style={[style.menuItems,style.logout]}>Logout</Text>
+        <Animated.View style={[style.sideMenu, { backgroundColor: currentTheme.menuBackground, transform:[{translateX:slide}]}]}>
+            <Pressable onPress={() => {
+                toggleMenu();
+                router.push("/account");
+            }}>
+                <Text style={[style.menuItems, style.firstMenuItem, { color: currentTheme.menuText }]}>Account</Text>
+            </Pressable>
+            <Pressable onPress={() => {
+                toggleMenu();
+                router.push("/about");
+            }}>
+                <Text style={[style.menuItems, { color: currentTheme.menuText }]}>About ALLIO</Text>
+            </Pressable>
+            <Pressable onPress={() => {
+                toggleTheme();
+                toggleMenu();
+            }}>
+                <Text style={[style.menuItems, { color: currentTheme.menuText }]}>Appearance</Text>
+            </Pressable>
+            <Pressable onPress={() => {
+                toggleMenu();
+                router.push("/auth");
+            }}>
+                <Text style={[style.menuItems,style.logout, { color: currentTheme.menuText }]}>Logout</Text>
+            </Pressable>
         </Animated.View>
         
             <View style={style.content}>
                   <View style={style.grid}>
                     <Pressable style={style.cardContainer} onPress={()=>router.push("/notes")}>
-                        <Card style={style.card}>
-                <SimpleLineIcons name="notebook" size={26} color="#ffd84d" />
-                <Text style={style.cardText}>Idea Notes</Text>
+                        <Card style={[style.card, { backgroundColor: currentTheme.cardBackground }]}>
+                <SimpleLineIcons name="notebook" size={26} color={currentTheme.accentColor} />
+                <Text style={[style.cardText, { color: currentTheme.accentColor }]}>Idea Notes</Text>
             </Card>
                 </Pressable>
                 <Pressable style={style.cardContainer} onPress={()=>router.push("/calendarcheck")}>
-                    <Card style={style.card}>
-                <FontAwesome name="calendar-check-o" size={26} color="#ffd84d" />
-                <Text style={style.cardText}>Calendar Check</Text>
+                    <Card style={[style.card, { backgroundColor: currentTheme.cardBackground }]}>
+                <FontAwesome name="calendar-check-o" size={26} color={currentTheme.accentColor} />
+                <Text style={[style.cardText, { color: currentTheme.accentColor }]}>Calendar Check</Text>
             </Card>
                 </Pressable>
             
             <Pressable style={style.cardContainer} onPress={()=>router.push("/waterintake")}>
-                <Card style={style.card}>
-                <MaterialCommunityIcons name="water-check" size={26} color="#ffd84d" />
-                <Text style={style.cardText}>Water Intake</Text>
+                <Card style={[style.card, { backgroundColor: currentTheme.cardBackground }]}>
+                <MaterialCommunityIcons name="water-check" size={26} color={currentTheme.accentColor} />
+                <Text style={[style.cardText, { color: currentTheme.accentColor }]}>Water Intake</Text>
             </Card>
             </Pressable>
 
           <Pressable style={style.cardContainer} onPress={()=>router.push("/overview")}>
-          <Card style={style.card}>
-                <Ionicons name="today-outline" size={26} color="#ffd84d" />
-                <Text style={style.cardText}>Today/Overview</Text>
+          <Card style={[style.card, { backgroundColor: currentTheme.cardBackground }]}>
+                <Ionicons name="today-outline" size={26} color={currentTheme.accentColor} />
+                <Text style={[style.cardText, { color: currentTheme.accentColor }]}>Daily Overview</Text>
             </Card>
          </Pressable>
             
@@ -76,7 +98,6 @@ export default function DashboardScreen(){
 const style=StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#000000",
     paddingHorizontal: 20,
   },
 
@@ -116,7 +137,6 @@ const style=StyleSheet.create({
     width: "100%",
     height:170,
     borderRadius: 22,
-    backgroundColor: "#7a4a00",
     justifyContent: "center",
     alignItems: "center",
     elevation: 4,
@@ -132,7 +152,6 @@ const style=StyleSheet.create({
 
   cardText: {
     marginTop: 10,
-    color: "#ffd84d",
     fontSize: 16,
     fontWeight: "600",
     textAlign: "center",
@@ -144,7 +163,6 @@ const style=StyleSheet.create({
     left: 0,
     width: 220,
     height: "100%",
-    backgroundColor: "#7a4a00",
     paddingTop: 90,
     paddingHorizontal: 24,
     zIndex: 15,
@@ -159,14 +177,12 @@ const style=StyleSheet.create({
     fontSize: 17,
     fontWeight: "700",
     marginBottom: 26,
-    color: "#ffff00",
   },
   firstMenuItem:{
    marginTop:30,
   },
 
   logout: {
-    color: "#ffff00",
     marginTop:1,
     fontSize:17,
     fontWeight:"700",
