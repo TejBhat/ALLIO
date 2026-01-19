@@ -1,10 +1,11 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { router } from "expo-router";
-import { useState } from "react";
-import { Alert, FlatList, Pressable, StyleSheet, View } from "react-native";
+import { useState, useEffect } from "react";
+import { Alert, FlatList, Pressable, StyleSheet, View, ActivityIndicator } from "react-native";
 import { Card, Text, TextInput } from "react-native-paper";
 import { useTheme } from "../context/ThemeContext";
+import { saveNotes, getNotes } from "../utils/storage";
 
 interface Note {
   id: string;
@@ -20,39 +21,82 @@ export default function NotesScreen() {
   const [isCreating, setIsCreating] = useState(false);
   const [currentNote, setCurrentNote] = useState({ title: "", content: "" });
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const saveNote = () => {
+  // Load notes on mount
+  useEffect(() => {
+    loadNotes();
+  }, []);
+
+  const loadNotes = async () => {
+    try {
+      const savedNotes = await getNotes();
+      setNotes(savedNotes);
+    } catch (error) {
+      console.error("Error loading notes:", error);
+      Alert.alert("Error", "Failed to load notes");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const saveNote = async () => {
     if (!currentNote.title.trim() && !currentNote.content.trim()) {
       Alert.alert("Empty Note", "Please write something before saving.");
       return;
     }
 
-    if (editingId) {
-      setNotes(notes.map(note => 
-        note.id === editingId 
-          ? { ...note, ...currentNote, updatedAt: new Date().toISOString() }
-          : note
-      ));
-    } else {
-      const newNote: Note = {
-        id: Date.now().toString(),
-        title: currentNote.title || "Untitled",
-        content: currentNote.content,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      setNotes([newNote, ...notes]);
-    }
+    try {
+      let updatedNotes: Note[];
 
-    setCurrentNote({ title: "", content: "" });
-    setIsCreating(false);
-    setEditingId(null);
+      if (editingId) {
+        // Update existing note
+        updatedNotes = notes.map(note =>
+          note.id === editingId
+            ? { ...note, ...currentNote, updatedAt: new Date().toISOString() }
+            : note
+        );
+      } else {
+        // Create new note
+        const newNote: Note = {
+          id: Date.now().toString(),
+          title: currentNote.title || "Untitled",
+          content: currentNote.content,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        updatedNotes = [newNote, ...notes];
+      }
+
+      setNotes(updatedNotes);
+      await saveNotes(updatedNotes);
+
+      setCurrentNote({ title: "", content: "" });
+      setIsCreating(false);
+      setEditingId(null);
+    } catch (error) {
+      console.error("Error saving note:", error);
+      Alert.alert("Error", "Failed to save note");
+    }
   };
 
-  const deleteNote = (id: string) => {
+  const deleteNote = async (id: string) => {
     Alert.alert("Delete Note", "Are you sure you want to delete this note?", [
       { text: "Cancel", style: "cancel" },
-      { text: "Delete", style: "destructive", onPress: () => setNotes(notes.filter(note => note.id !== id)) },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            const updatedNotes = notes.filter(note => note.id !== id);
+            setNotes(updatedNotes);
+            await saveNotes(updatedNotes);
+          } catch (error) {
+            console.error("Error deleting note:", error);
+            Alert.alert("Error", "Failed to delete note");
+          }
+        }
+      },
     ]);
   };
 
@@ -73,6 +117,19 @@ export default function NotesScreen() {
     return date.toLocaleDateString();
   };
 
+  // Loading state
+  if (isLoading) {
+    return (
+      <View style={[styles.container, { backgroundColor: currentTheme.backgroundColor, justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color={currentTheme.accentColor} />
+        <Text style={{ color: currentTheme.accentColor, marginTop: 16, fontSize: 16 }}>
+          Loading notes...
+        </Text>
+      </View>
+    );
+  }
+
+  // Create/Edit note view
   if (isCreating) {
     return (
       <View style={[styles.container, { backgroundColor: currentTheme.backgroundColor }]}>
@@ -84,6 +141,9 @@ export default function NotesScreen() {
           }}>
             <Ionicons name="arrow-back" size={24} color="#111827" />
           </Pressable>
+          <Text style={[styles.title, { color: currentTheme.accentColor }]}>
+            {editingId ? "Edit Note" : "New Note"}
+          </Text>
           <Pressable style={[styles.saveBtn, { backgroundColor: currentTheme.cardBackground }]} onPress={saveNote}>
             <Text style={[styles.saveBtnText, { color: currentTheme.accentColor }]}>Save</Text>
           </Pressable>
@@ -91,7 +151,7 @@ export default function NotesScreen() {
 
         <TextInput
           placeholder="Title"
-          placeholderTextColor="#f8f8ff"
+          placeholderTextColor="#999"
           textColor={currentTheme.accentColor}
           value={currentNote.title}
           onChangeText={(text) => setCurrentNote({ ...currentNote, title: text })}
@@ -103,7 +163,7 @@ export default function NotesScreen() {
 
         <TextInput
           placeholder="Start writing..."
-          placeholderTextColor="#f8f8ff"
+          placeholderTextColor="#999"
           textColor={currentTheme.accentColor}
           value={currentNote.content}
           onChangeText={(text) => setCurrentNote({ ...currentNote, content: text })}
@@ -117,6 +177,7 @@ export default function NotesScreen() {
     );
   }
 
+  // Notes list view
   return (
     <View style={[styles.container, { backgroundColor: currentTheme.backgroundColor }]}>
       <View style={styles.header}>
@@ -131,8 +192,9 @@ export default function NotesScreen() {
 
       {notes.length === 0 ? (
         <View style={styles.emptyState}>
-          <Ionicons name="document-text-outline" size={80} color="#ccc" />
+          <Ionicons name="document-text-outline" size={80} color="#999" />
           <Text style={styles.emptyTitle}>No notes yet</Text>
+          <Text style={styles.emptySubtitle}>Tap the + button to create your first note</Text>
         </View>
       ) : (
         <FlatList
@@ -213,6 +275,12 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#666",
     marginTop: 20,
+    marginBottom: 8,
+  },
+  emptySubtitle: {
+    fontSize: 14,
+    color: "#999",
+    textAlign: "center",
   },
   listContent: {
     padding: 20,
@@ -235,6 +303,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "700",
     flex: 1,
+    marginRight: 8,
   },
   deleteBtn: {
     padding: 4,
@@ -243,6 +312,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 8,
     lineHeight: 20,
+    opacity: 0.8,
   },
   noteDate: {
     fontSize: 12,
