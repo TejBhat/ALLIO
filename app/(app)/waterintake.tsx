@@ -1,31 +1,56 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { router } from "expo-router";
-import { useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { useEffect, useState } from "react";
+import { Pressable, StyleSheet, Text, View, ActivityIndicator } from "react-native";
 import { useTheme } from "../context/ThemeContext";
+import {saveWaterIntake, getWaterIntake} from "../utils/storage";
 
 export default function WaterIntakeScreen() {
   const { currentTheme } = useTheme();
   const GLASS_SIZE = 250; // ml per glass
   const [glassCount, setGlassCount] = useState(0);
+  const [isLoading, setIsLoading]=useState(true);
 
-  const addGlass = () => {
-    setGlassCount(glassCount + 1);
+  useEffect(()=>{
+    loadWaterData();
+  },[]);
+
+  const loadWaterData=async()=>{
+     const savedCount=await getWaterIntake();
+     setGlassCount(savedCount);
+     setIsLoading(false);
   };
 
-  const removeGlass = () => {
+  const addGlass = async () => {
+    const newCount=glassCount+1;
+    setGlassCount(newCount);
+    await saveWaterIntake(newCount);
+  };
+
+  const removeGlass = async() => {
     if (glassCount > 0) {
-      setGlassCount(glassCount - 1);
+      const newCount=glassCount-1;
+      setGlassCount(newCount);
+      await saveWaterIntake(newCount);
     }
   };
 
-  const resetCount = () => {
+  const resetCount = async() => {
     setGlassCount(0);
+    await saveWaterIntake(0);
   };
 
   const totalML = glassCount * GLASS_SIZE;
   const totalLiters = (totalML / 1000).toFixed(2);
+
+  if (isLoading) {
+    return (
+      <View style={[styles.container, { backgroundColor: currentTheme.backgroundColor, justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color={currentTheme.accentColor} />
+      </View>
+    );
+  }
 
   return (
     <View style={[styles.container, { backgroundColor: currentTheme.backgroundColor }]}>
