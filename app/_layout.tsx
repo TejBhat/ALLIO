@@ -6,7 +6,6 @@ export default function RootLayout() {
     <ThemeProvider>
       <Stack screenOptions={{headerShown: false}}>
         <Stack.Screen name="/index"/>
-        <Stack.Screen name="/auth"/>
         <Stack.Screen name="/dashboard"/>
         <Stack.Screen name="/notes" options={{title:"Notes"}}/>
         <Stack.Screen name="/calendarcheck" options={{title:"Calendarcheck"}}/>

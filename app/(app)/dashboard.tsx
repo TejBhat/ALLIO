@@ -51,7 +51,7 @@ export default function DashboardScreen(){
                 toggleTheme();
                 toggleMenu();
             }}>
-                <Text style={[style.menuItems, { color: currentTheme.menuText }]}>Appearance</Text>
+                <Text style={[style.menuItems, { color: currentTheme.menuText }]}>Theme</Text>
             </Pressable>
             <Pressable onPress={() => {
                 toggleMenu();
