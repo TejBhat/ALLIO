@@ -1,18 +1,20 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { router } from "expo-router";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { router, useFocusEffect } from "expo-router";
+import { Pressable, ScrollView, StyleSheet, Text, View, ActivityIndicator } from "react-native";
 import { useTheme } from "../context/ThemeContext";
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import { getWaterIntake, getStreak, updateStreak, getNotes, getTasks } from "../utils/storage";
 
 export default function OverviewScreen() {
   const { currentTheme } = useTheme();
   
-  // Mock data - you can connect this to your actual data later
   const [waterGlasses, setWaterGlasses] = useState(0);
   const [tasksCompleted, setTasksCompleted] = useState(0);
+  const [totalTasks, setTotalTasks] = useState(0);
   const [notesWritten, setNotesWritten] = useState(0);
-  const [currentStreak, setCurrentStreak] = useState(5); // Days in a row
+  const [currentStreak, setCurrentStreak] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
   const currentDate = new Date();
   const dateString = currentDate.toLocaleDateString('en-US', { 
@@ -34,6 +36,61 @@ export default function OverviewScreen() {
     "One day at a time.",
   ];
   const dailyQuote = quotes[currentDate.getDay()];
+
+  // Load data when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      loadOverviewData();
+    }, [])
+  );
+
+  const loadOverviewData = async () => {
+    setIsLoading(true);
+    try {
+      // Load water intake (converts ml to glasses)
+      const waterML = await getWaterIntake();
+      const glasses = Math.floor(waterML / 250); // 250ml per glass
+      setWaterGlasses(glasses);
+
+      // Load and update streak
+      const streak = await updateStreak();
+      setCurrentStreak(streak);
+
+      // Load notes
+      const notes = await getNotes();
+      setNotesWritten(notes.length);
+
+      // Load tasks
+      const tasks = await getTasks();
+      const today = new Date().toDateString();
+      
+      // Filter tasks for today only
+      const todaysTasks = tasks.filter((task: any) => {
+        const taskDate = new Date(task.date).toDateString();
+        return taskDate === today;
+      });
+
+      setTotalTasks(todaysTasks.length);
+      const completed = todaysTasks.filter((task: any) => task.completed).length;
+      setTasksCompleted(completed);
+
+    } catch (error) {
+      console.error("Error loading overview data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <View style={[styles.container, { backgroundColor: currentTheme.backgroundColor, justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color={currentTheme.accentColor} />
+        <Text style={{ color: currentTheme.accentColor, marginTop: 16, fontSize: 16 }}>
+          Loading your overview...
+        </Text>
+      </View>
+    );
+  }
 
   return (
     <ScrollView 
@@ -57,7 +114,11 @@ export default function OverviewScreen() {
           <Text style={[styles.streakNumber, { color: currentTheme.accentColor }]}>{currentStreak}</Text>
           <Text style={styles.streakLabel}>Day Streak!</Text>
         </View>
-        <Text style={styles.streakSubtext}>Keep the momentum going 🚀</Text>
+        <Text style={styles.streakSubtext}>
+          {currentStreak === 1 
+            ? "Great start! Come back tomorrow 🚀" 
+            : `${currentStreak} days in a row! Keep it up 🚀`}
+        </Text>
       </View>
 
       {/* Today's Stats */}
@@ -82,7 +143,9 @@ export default function OverviewScreen() {
             onPress={() => router.push("/calendarcheck")}
           >
             <Ionicons name="checkmark-circle-outline" size={32} color="#34d399" />
-            <Text style={[styles.statNumber, { color: currentTheme.accentColor }]}>{tasksCompleted}</Text>
+            <Text style={[styles.statNumber, { color: currentTheme.accentColor }]}>
+              {tasksCompleted}/{totalTasks}
+            </Text>
             <Text style={styles.statLabel}>Tasks</Text>
             <Text style={styles.statSubtext}>Completed</Text>
           </Pressable>
@@ -95,10 +158,37 @@ export default function OverviewScreen() {
             <Ionicons name="document-text-outline" size={32} color="#fbbf24" />
             <Text style={[styles.statNumber, { color: currentTheme.accentColor }]}>{notesWritten}</Text>
             <Text style={styles.statLabel}>Notes</Text>
-            <Text style={styles.statSubtext}>Written</Text>
+            <Text style={styles.statSubtext}>Total</Text>
           </Pressable>
         </View>
       </View>
+
+      {/* Progress Summary */}
+      {(waterGlasses > 0 || tasksCompleted > 0 || notesWritten > 0) && (
+        <View style={[styles.progressSummary, { backgroundColor: currentTheme.cardBackground }]}>
+          <Text style={[styles.progressTitle, { color: currentTheme.accentColor }]}>
+            Today's Progress
+          </Text>
+          {waterGlasses >= 8 && (
+            <View style={styles.achievementRow}>
+              <Ionicons name="checkmark-circle" size={20} color="#34d399" />
+              <Text style={styles.achievementText}>✨ Hydration goal reached!</Text>
+            </View>
+          )}
+          {tasksCompleted === totalTasks && totalTasks > 0 && (
+            <View style={styles.achievementRow}>
+              <Ionicons name="checkmark-circle" size={20} color="#34d399" />
+              <Text style={styles.achievementText}>✨ All tasks completed!</Text>
+            </View>
+          )}
+          {notesWritten > 0 && (
+            <View style={styles.achievementRow}>
+              <Ionicons name="checkmark-circle" size={20} color="#fbbf24" />
+              <Text style={styles.achievementText}>📝 {notesWritten} notes created</Text>
+            </View>
+          )}
+        </View>
+      )}
 
       {/* Daily Quote */}
       <View style={[styles.quoteCard, { backgroundColor: currentTheme.cardBackground }]}>
@@ -112,21 +202,28 @@ export default function OverviewScreen() {
         
         <View style={[styles.weekCard, { backgroundColor: currentTheme.cardBackground }]}>
           <View style={styles.weekDays}>
-            {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, index) => (
-              <View key={index} style={styles.dayColumn}>
-                <Text style={styles.dayLabel}>{day}</Text>
-                <View 
-                  style={[
-                    styles.dayDot, 
-                    index < currentStreak && styles.dayDotActive,
-                    { backgroundColor: index < currentStreak ? currentTheme.accentColor : '#333' }
-                  ]} 
-                />
-              </View>
-            ))}
+            {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, index) => {
+              const isActive = index < Math.min(currentStreak, 7);
+              return (
+                <View key={index} style={styles.dayColumn}>
+                  <Text style={[styles.dayLabel, isActive && { color: currentTheme.accentColor }]}>
+                    {day}
+                  </Text>
+                  <View 
+                    style={[
+                      styles.dayDot, 
+                      isActive && styles.dayDotActive,
+                      { backgroundColor: isActive ? currentTheme.accentColor : '#333' }
+                    ]} 
+                  />
+                </View>
+              );
+            })}
           </View>
           <Text style={styles.weekSubtext}>
-            {currentStreak} {currentStreak === 1 ? 'day' : 'days'} active this week
+            {currentStreak === 0 
+              ? "Start your streak today!"
+              : `${Math.min(currentStreak, 7)} ${currentStreak === 1 ? 'day' : 'days'} active this week`}
           </Text>
         </View>
       </View>
@@ -141,6 +238,9 @@ export default function OverviewScreen() {
         >
           <MaterialCommunityIcons name="plus-circle" size={24} color={currentTheme.accentColor} />
           <Text style={[styles.actionText, { color: currentTheme.accentColor }]}>Log Water</Text>
+          <View style={styles.actionBadge}>
+            <Text style={styles.actionBadgeText}>{waterGlasses}</Text>
+          </View>
         </Pressable>
 
         <Pressable 
@@ -149,6 +249,9 @@ export default function OverviewScreen() {
         >
           <MaterialCommunityIcons name="plus-circle" size={24} color={currentTheme.accentColor} />
           <Text style={[styles.actionText, { color: currentTheme.accentColor }]}>Add Task</Text>
+          <View style={styles.actionBadge}>
+            <Text style={styles.actionBadgeText}>{totalTasks}</Text>
+          </View>
         </Pressable>
 
         <Pressable 
@@ -157,8 +260,22 @@ export default function OverviewScreen() {
         >
           <MaterialCommunityIcons name="plus-circle" size={24} color={currentTheme.accentColor} />
           <Text style={[styles.actionText, { color: currentTheme.accentColor }]}>Write Note</Text>
+          <View style={styles.actionBadge}>
+            <Text style={styles.actionBadgeText}>{notesWritten}</Text>
+          </View>
         </Pressable>
       </View>
+
+      {/* Refresh Button */}
+      <Pressable 
+        style={[styles.refreshButton, { backgroundColor: currentTheme.cardBackground }]}
+        onPress={loadOverviewData}
+      >
+        <Ionicons name="refresh" size={20} color={currentTheme.accentColor} />
+        <Text style={[styles.refreshText, { color: currentTheme.accentColor }]}>
+          Refresh Data
+        </Text>
+      </Pressable>
     </ScrollView>
   );
 }
@@ -222,6 +339,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#ffeaa7",
     fontStyle: "italic",
+    textAlign: "center",
   },
   section: {
     marginBottom: 30,
@@ -243,7 +361,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   statNumber: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: "800",
     marginTop: 8,
     marginBottom: 4,
@@ -257,6 +375,28 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#999",
     marginTop: 2,
+  },
+  progressSummary: {
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 30,
+    elevation: 2,
+  },
+  progressTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    marginBottom: 12,
+  },
+  achievementRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    paddingVertical: 8,
+  },
+  achievementText: {
+    fontSize: 14,
+    color: "#ffeaa7",
+    fontWeight: "500",
   },
   quoteCard: {
     borderRadius: 16,
@@ -318,6 +458,32 @@ const styles = StyleSheet.create({
   },
   actionText: {
     fontSize: 16,
+    fontWeight: "600",
+    flex: 1,
+  },
+  actionBadge: {
+    backgroundColor: "rgba(255, 214, 77, 0.2)",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  actionBadgeText: {
+    color: "#ffd84d",
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  refreshButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 14,
+    borderRadius: 12,
+    elevation: 2,
+    gap: 8,
+    marginTop: 10,
+  },
+  refreshText: {
+    fontSize: 15,
     fontWeight: "600",
   },
 });
