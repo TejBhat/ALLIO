@@ -1,10 +1,11 @@
-import { View, Text, StyleSheet, Pressable, ScrollView, Alert, TextInput, Modal } from "react-native";
-import { useState } from "react";
+import { View, Text, StyleSheet, Pressable, ScrollView, Alert, TextInput, Modal, ActivityIndicator } from "react-native";
+import { useState, useEffect } from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { router } from "expo-router";
 import { useTheme } from "../context/ThemeContext";
 import { Calendar } from 'react-native-calendars';
+import { saveData, getData } from "../utils/storage";
 
 interface DayData {
   marked: boolean;
@@ -21,6 +22,8 @@ interface MarkedDates {
   };
 }
 
+const CALENDAR_DATA_KEY = 'calendar_day_data';
+
 export default function CalendarCheckScreen() {
   const { currentTheme } = useTheme();
   const [selectedDate, setSelectedDate] = useState('');
@@ -28,8 +31,36 @@ export default function CalendarCheckScreen() {
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [noteText, setNoteText] = useState('');
   const [taskText, setTaskText] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
 
   const today = new Date().toISOString().split('T')[0];
+
+  // Load calendar data on mount
+  useEffect(() => {
+    loadCalendarData();
+  }, []);
+
+  const loadCalendarData = async () => {
+    try {
+      const savedData = await getData(CALENDAR_DATA_KEY);
+      if (savedData) {
+        setDayData(savedData);
+      }
+    } catch (error) {
+      console.error("Error loading calendar data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const saveCalendarData = async (data: { [date: string]: DayData }) => {
+    try {
+      await saveData(CALENDAR_DATA_KEY, data);
+    } catch (error) {
+      console.error("Error saving calendar data:", error);
+      Alert.alert("Error", "Failed to save calendar data");
+    }
+  };
 
   // Convert dayData to markedDates format for calendar
   const getMarkedDates = (): MarkedDates => {
@@ -61,10 +92,11 @@ export default function CalendarCheckScreen() {
     
     // Initialize day data if it doesn't exist
     if (!dayData[date]) {
-      setDayData({
+      const newData = {
         ...dayData,
         [date]: { marked: false, note: '', tasks: [] }
-      });
+      };
+      setDayData(newData);
     }
   };
 
@@ -75,10 +107,10 @@ export default function CalendarCheckScreen() {
     setShowNoteModal(true);
   };
 
-  const toggleMark = () => {
+  const toggleMark = async () => {
     if (!selectedDate) return;
 
-    setDayData({
+    const newData = {
       ...dayData,
       [selectedDate]: {
         ...dayData[selectedDate],
@@ -86,13 +118,16 @@ export default function CalendarCheckScreen() {
         note: dayData[selectedDate]?.note || '',
         tasks: dayData[selectedDate]?.tasks || []
       }
-    });
+    };
+
+    setDayData(newData);
+    await saveCalendarData(newData);
   };
 
-  const saveNote = () => {
+  const saveNote = async () => {
     if (!selectedDate) return;
 
-    setDayData({
+    const newData = {
       ...dayData,
       [selectedDate]: {
         ...dayData[selectedDate],
@@ -100,18 +135,21 @@ export default function CalendarCheckScreen() {
         marked: dayData[selectedDate]?.marked || false,
         tasks: dayData[selectedDate]?.tasks || []
       }
-    });
+    };
+
+    setDayData(newData);
+    await saveCalendarData(newData);
 
     setShowNoteModal(false);
     setNoteText('');
   };
 
-  const addTask = () => {
+  const addTask = async () => {
     if (!selectedDate || !taskText.trim()) return;
 
     const currentTasks = dayData[selectedDate]?.tasks || [];
     
-    setDayData({
+    const newData = {
       ...dayData,
       [selectedDate]: {
         ...dayData[selectedDate],
@@ -119,26 +157,66 @@ export default function CalendarCheckScreen() {
         marked: dayData[selectedDate]?.marked || false,
         note: dayData[selectedDate]?.note || ''
       }
-    });
+    };
+
+    setDayData(newData);
+    await saveCalendarData(newData);
 
     setTaskText('');
   };
 
-  const deleteTask = (taskIndex: number) => {
+  const deleteTask = async (taskIndex: number) => {
     if (!selectedDate) return;
 
     const updatedTasks = dayData[selectedDate].tasks.filter((_, index) => index !== taskIndex);
     
-    setDayData({
+    const newData = {
       ...dayData,
       [selectedDate]: {
         ...dayData[selectedDate],
         tasks: updatedTasks
       }
-    });
+    };
+
+    setDayData(newData);
+    await saveCalendarData(newData);
+  };
+
+  const clearDateData = async () => {
+    if (!selectedDate) return;
+
+    Alert.alert(
+      "Clear Date Data",
+      "Are you sure you want to clear all data for this date?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Clear",
+          style: "destructive",
+          onPress: async () => {
+            const newData = { ...dayData };
+            delete newData[selectedDate];
+            setDayData(newData);
+            await saveCalendarData(newData);
+            setSelectedDate('');
+          }
+        }
+      ]
+    );
   };
 
   const selectedDayData = selectedDate ? dayData[selectedDate] : null;
+
+  if (isLoading) {
+    return (
+      <View style={[styles.container, { backgroundColor: currentTheme.backgroundColor, justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color={currentTheme.accentColor} />
+        <Text style={{ color: currentTheme.accentColor, marginTop: 16, fontSize: 16 }}>
+          Loading calendar...
+        </Text>
+      </View>
+    );
+  }
 
   return (
     <View style={[styles.container, { backgroundColor: currentTheme.backgroundColor }]}>
@@ -191,7 +269,7 @@ export default function CalendarCheckScreen() {
         {selectedDate && (
           <View style={styles.selectedDateSection}>
             <View style={styles.dateHeader}>
-              <View>
+              <View style={{ flex: 1 }}>
                 <Text style={[styles.selectedDateTitle, { color: currentTheme.accentColor }]}>
                   {new Date(selectedDate).toLocaleDateString('en-US', { 
                     weekday: 'long', 
@@ -205,16 +283,27 @@ export default function CalendarCheckScreen() {
                 )}
               </View>
 
-              <Pressable 
-                style={[styles.markButton, selectedDayData?.marked && styles.markButtonActive]}
-                onPress={toggleMark}
-              >
-                <Ionicons 
-                  name={selectedDayData?.marked ? "checkmark-circle" : "checkmark-circle-outline"} 
-                  size={28} 
-                  color={selectedDayData?.marked ? currentTheme.accentColor : "#999"} 
-                />
-              </Pressable>
+              <View style={styles.dateActions}>
+                <Pressable 
+                  style={[styles.markButton, selectedDayData?.marked && styles.markButtonActive]}
+                  onPress={toggleMark}
+                >
+                  <Ionicons 
+                    name={selectedDayData?.marked ? "checkmark-circle" : "checkmark-circle-outline"} 
+                    size={28} 
+                    color={selectedDayData?.marked ? currentTheme.accentColor : "#999"} 
+                  />
+                </Pressable>
+
+                {(selectedDayData?.marked || selectedDayData?.note || (selectedDayData?.tasks && selectedDayData.tasks.length > 0)) && (
+                  <Pressable 
+                    style={styles.clearButton}
+                    onPress={clearDateData}
+                  >
+                    <Ionicons name="trash-outline" size={24} color="#DC2626" />
+                  </Pressable>
+                )}
+              </View>
             </View>
 
             {/* Note Section */}
@@ -247,6 +336,9 @@ export default function CalendarCheckScreen() {
               <View style={styles.sectionHeader}>
                 <MaterialIcons name="checklist" size={20} color={currentTheme.accentColor} />
                 <Text style={[styles.sectionTitle, { color: currentTheme.accentColor }]}>Tasks</Text>
+                {selectedDayData?.tasks && selectedDayData.tasks.length > 0 && (
+                  <Text style={styles.taskCount}>({selectedDayData.tasks.length})</Text>
+                )}
               </View>
 
               <View style={styles.addTaskContainer}>
@@ -311,8 +403,13 @@ export default function CalendarCheckScreen() {
             onPress={(e) => e.stopPropagation()}
           >
             <View style={styles.modalHeader}>
-              <Text style={[styles.modalTitle, { color: currentTheme.accentColor }]}>Add Note</Text>
-              <Pressable onPress={() => setShowNoteModal(false)}>
+              <Text style={[styles.modalTitle, { color: currentTheme.accentColor }]}>
+                {noteText ? 'Edit Note' : 'Add Note'}
+              </Text>
+              <Pressable onPress={() => {
+                setShowNoteModal(false);
+                setNoteText('');
+              }}>
                 <Ionicons name="close" size={24} color={currentTheme.accentColor} />
               </Pressable>
             </View>
@@ -326,6 +423,7 @@ export default function CalendarCheckScreen() {
               multiline
               numberOfLines={4}
               textAlignVertical="top"
+              autoFocus
             />
 
             <View style={styles.modalButtons}>
@@ -412,11 +510,19 @@ const styles = StyleSheet.create({
     color: "#ffd84d",
     fontWeight: "600",
   },
+  dateActions: {
+    flexDirection: "row",
+    gap: 12,
+    alignItems: "center",
+  },
   markButton: {
     padding: 4,
   },
   markButtonActive: {
     transform: [{ scale: 1.1 }],
+  },
+  clearButton: {
+    padding: 4,
   },
   noteSection: {
     borderRadius: 16,
@@ -432,6 +538,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: "700",
+  },
+  taskCount: {
+    fontSize: 14,
+    color: "#999",
+    marginLeft: 4,
   },
   noteText: {
     color: "#ffeaa7",
