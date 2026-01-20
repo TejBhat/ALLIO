@@ -21,7 +21,7 @@ export default function AboutScreen() {
   };
 
   const contactDeveloper = () => {
-    Linking.openURL("mailto:tejbhat2004@gmail.com"); 
+    Linking.openURL("mailto:alliotejapp@gmail.com"); 
   };
 
   return (
