@@ -11,7 +11,7 @@ const WATER_DATE_KEY = 'water_glasses_date';
 
 export default function WaterIntakeScreen() {
   const { currentTheme } = useTheme();
-  const GLASS_SIZE = 250; // ml per glass
+  const GLASS_SIZE = 200; // ml per glass
   const [glassCount, setGlassCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
