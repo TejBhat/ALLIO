@@ -11,11 +11,11 @@ export const themes = [
   },
   
   {
-    backgroundColor: "#ffffff",
-    cardBackground: "#000000",
-    accentColor: "#ffffff",
-    menuBackground: "#000000",
-    menuText: "#ffffff",
+    backgroundColor: "#faf8f3",      
+    cardBackground: "#808080",       
+    accentColor: "#000000",          
+    menuBackground: "#808080",       
+    menuText: "#000000",
   },
 ];
 
