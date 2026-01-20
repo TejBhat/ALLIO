@@ -4,50 +4,83 @@ import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { Pressable, StyleSheet, Text, View, ActivityIndicator } from "react-native";
 import { useTheme } from "../context/ThemeContext";
-import {saveWaterIntake, getWaterIntake} from "../utils/storage";
+import { saveData, getData } from "../utils/storage";
+
+const WATER_GLASSES_KEY = 'water_glasses_count';
+const WATER_DATE_KEY = 'water_glasses_date';
 
 export default function WaterIntakeScreen() {
   const { currentTheme } = useTheme();
   const GLASS_SIZE = 250; // ml per glass
   const [glassCount, setGlassCount] = useState(0);
-  const [isLoading, setIsLoading]=useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(()=>{
+  useEffect(() => {
     loadWaterData();
-  },[]);
+  }, []);
 
-  const loadWaterData=async()=>{
-     const savedCount=await getWaterIntake();
-     setGlassCount(savedCount);
-     setIsLoading(false);
-  };
-
-  const addGlass = async () => {
-    const newCount=glassCount+1;
-    setGlassCount(newCount);
-    await saveWaterIntake(newCount);
-  };
-
-  const removeGlass = async() => {
-    if (glassCount > 0) {
-      const newCount=glassCount-1;
-      setGlassCount(newCount);
-      await saveWaterIntake(newCount);
+  const loadWaterData = async () => {
+    try {
+      const today = new Date().toDateString();
+      const savedDate = await getData(WATER_DATE_KEY);
+      
+      // Reset if it's a new day
+      if (savedDate !== today) {
+        await saveData(WATER_GLASSES_KEY, 0);
+        await saveData(WATER_DATE_KEY, today);
+        setGlassCount(0);
+      } else {
+        const savedCount = await getData(WATER_GLASSES_KEY);
+        setGlassCount(savedCount || 0);
+      }
+    } catch (error) {
+      console.error("Error loading water data:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const resetCount = async() => {
+  const saveWaterData = async (count: number) => {
+    try {
+      const today = new Date().toDateString();
+      await saveData(WATER_GLASSES_KEY, count);
+      await saveData(WATER_DATE_KEY, today);
+    } catch (error) {
+      console.error("Error saving water data:", error);
+    }
+  };
+
+  const addGlass = async () => {
+    const newCount = glassCount + 1;
+    setGlassCount(newCount);
+    await saveWaterData(newCount);
+  };
+
+  const removeGlass = async () => {
+    if (glassCount > 0) {
+      const newCount = glassCount - 1;
+      setGlassCount(newCount);
+      await saveWaterData(newCount);
+    }
+  };
+
+  const resetCount = async () => {
     setGlassCount(0);
-    await saveWaterIntake(0);
+    await saveWaterData(0);
   };
 
   const totalML = glassCount * GLASS_SIZE;
   const totalLiters = (totalML / 1000).toFixed(2);
+  const goalGlasses = 8; // 8 glasses = 2000ml
+  const progressPercentage = Math.min((glassCount / goalGlasses) * 100, 100);
 
   if (isLoading) {
     return (
       <View style={[styles.container, { backgroundColor: currentTheme.backgroundColor, justifyContent: 'center', alignItems: 'center' }]}>
         <ActivityIndicator size="large" color={currentTheme.accentColor} />
+        <Text style={{ color: currentTheme.accentColor, marginTop: 16, fontSize: 16 }}>
+          Loading...
+        </Text>
       </View>
     );
   }
@@ -87,63 +120,73 @@ export default function WaterIntakeScreen() {
         </Text>
       </View>
 
-      {/* Add Button */}
-      <Pressable 
-        style={[styles.addBtn, { backgroundColor: currentTheme.cardBackground }]} 
-        onPress={addGlass}
-      >
-        <Ionicons name="add-circle" size={80} color={currentTheme.accentColor} />
-      </Pressable>
+      {/* Add/Remove Buttons */}
+      <View style={styles.controlButtons}>
+        <Pressable 
+          style={[
+            styles.controlBtn, 
+            { backgroundColor: currentTheme.cardBackground, opacity: glassCount === 0 ? 0.5 : 1 }
+          ]} 
+          onPress={removeGlass}
+          disabled={glassCount === 0}
+        >
+          <Ionicons name="remove-circle" size={60} color={currentTheme.accentColor} />
+        </Pressable>
 
-      <Text style={[styles.tapText, { color: currentTheme.accentColor }]}>
-        Tap to add a glass (250ml)
-      </Text>
-
-      {/* Action Buttons */}
-      <View style={styles.actionButtons}>
-        {glassCount > 0 && (
-          <Pressable 
-            style={[styles.actionBtn, styles.minusBtn, { backgroundColor: currentTheme.cardBackground }]} 
-            onPress={removeGlass}
-          >
-            <Ionicons name="remove-circle-outline" size={28} color={currentTheme.accentColor} />
-            <Text style={[styles.actionBtnText, { color: currentTheme.accentColor }]}>
-              Remove One
-            </Text>
-          </Pressable>
-        )}
-
-        {glassCount > 0 && (
-          <Pressable 
-            style={[styles.actionBtn, styles.resetBtn, { backgroundColor: currentTheme.cardBackground }]} 
-            onPress={resetCount}
-          >
-            <MaterialCommunityIcons name="refresh" size={28} color="#DC2626" />
-            <Text style={[styles.actionBtnText, { color: "#DC2626" }]}>
-              Reset
-            </Text>
-          </Pressable>
-        )}
+        <Pressable 
+          style={[styles.controlBtn, { backgroundColor: currentTheme.cardBackground }]} 
+          onPress={addGlass}
+        >
+          <Ionicons name="add-circle" size={60} color={currentTheme.accentColor} />
+        </Pressable>
       </View>
 
-      {/* Daily Goal Indicator */}
-      <View style={styles.goalContainer}>
-        <Text style={styles.goalLabel}>Recommended Daily Goal</Text>
-        <View style={styles.goalBar}>
+      <Text style={[styles.tapText, { color: currentTheme.accentColor }]}>
+        Tap + to add or - to remove a glass (250ml)
+      </Text>
+
+      {/* Daily Goal Progress */}
+      <View style={[styles.goalContainer, { backgroundColor: currentTheme.cardBackground }]}>
+        <View style={styles.goalHeader}>
+          <Text style={[styles.goalTitle, { color: currentTheme.accentColor }]}>
+            Daily Goal
+          </Text>
+          <Text style={[styles.goalCount, { color: currentTheme.accentColor }]}>
+            {glassCount} / {goalGlasses}
+          </Text>
+        </View>
+
+        <View style={styles.goalBarContainer}>
           <View 
             style={[
               styles.goalProgress, 
               { 
-                width: `${Math.min((totalML / 2000) * 100, 100)}%`,
+                width: `${progressPercentage}%`,
                 backgroundColor: currentTheme.accentColor 
               }
             ]} 
           />
         </View>
-        <Text style={styles.goalText}>
-          {totalML} / 2000 ml ({Math.round((totalML / 2000) * 100)}%)
+
+        <Text style={styles.goalSubtext}>
+          {glassCount >= goalGlasses 
+            ? "🎉 Goal achieved! Great job!" 
+            : `${goalGlasses - glassCount} more ${goalGlasses - glassCount === 1 ? 'glass' : 'glasses'} to go`}
         </Text>
       </View>
+
+      {/* Reset Button */}
+      {glassCount > 0 && (
+        <Pressable 
+          style={[styles.resetBtn, { backgroundColor: currentTheme.cardBackground }]} 
+          onPress={resetCount}
+        >
+          <MaterialCommunityIcons name="refresh" size={24} color="#DC2626" />
+          <Text style={styles.resetBtnText}>
+            Reset Today
+          </Text>
+        </Pressable>
+      )}
     </View>
   );
 }
@@ -205,7 +248,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#ffeaa7",
   },
-  addBtn: {
+  controlButtons: {
+    flexDirection: "row",
+    gap: 40,
+    marginBottom: 20,
+    alignItems: "center",
+  },
+  controlBtn: {
     borderRadius: 100,
     padding: 20,
     elevation: 6,
@@ -215,66 +264,64 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
   },
   tapText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "600",
-    marginTop: 16,
     marginBottom: 30,
-  },
-  actionButtons: {
-    flexDirection: "row",
-    gap: 12,
-    width: "100%",
-    marginBottom: 30,
-  },
-  actionBtn: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    paddingVertical: 14,
-    borderRadius: 16,
-    elevation: 2,
-  },
-  minusBtn: {
-    // Additional styling if needed
-  },
-  resetBtn: {
-    // Additional styling if needed
-  },
-  actionBtnText: {
-    fontSize: 15,
-    fontWeight: "600",
+    textAlign: "center",
+    paddingHorizontal: 20,
   },
   goalContainer: {
     width: "100%",
-    backgroundColor: "rgba(122, 74, 0, 0.3)",
-    borderRadius: 16,
-    padding: 20,
+    borderRadius: 20,
+    padding: 24,
+    marginBottom: 20,
+    elevation: 3,
   },
-  goalLabel: {
-    fontSize: 14,
-    color: "#ffeaa7",
-    marginBottom: 12,
-    textAlign: "center",
-    fontWeight: "600",
+  goalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
   },
-  goalBar: {
+  goalTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+  },
+  goalCount: {
+    fontSize: 24,
+    fontWeight: "900",
+  },
+  goalBarContainer: {
     width: "100%",
-    height: 10,
+    height: 12,
     backgroundColor: "#5a3400",
-    borderRadius: 5,
+    borderRadius: 6,
     overflow: "hidden",
-    marginBottom: 10,
+    marginBottom: 12,
   },
   goalProgress: {
     height: "100%",
-    borderRadius: 5,
+    borderRadius: 6,
   },
-  goalText: {
+  goalSubtext: {
     fontSize: 14,
     color: "#ffeaa7",
     textAlign: "center",
     fontWeight: "600",
+  },
+  resetBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    elevation: 2,
+  },
+  resetBtnText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#DC2626",
   },
 });
