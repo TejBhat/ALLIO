@@ -55,9 +55,9 @@ export default function DashboardScreen(){
             </Pressable>
             <Pressable onPress={() => {
                 toggleMenu();
-                router.push("/auth");
+                router.push("/");
             }}>
-                <Text style={[style.menuItems,style.logout, { color: currentTheme.menuText }]}>Logout</Text>
+                <Text style={[style.menuItems,style.logout, { color: currentTheme.menuText }]}></Text>
             </Pressable>
         </Animated.View>
         
