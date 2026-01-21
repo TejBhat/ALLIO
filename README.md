@@ -21,7 +21,3 @@ UI Library: React Native Paper
 Tej M Bhat
 
 Designer & Developer
-
-# Version
-
-v1.0.0
