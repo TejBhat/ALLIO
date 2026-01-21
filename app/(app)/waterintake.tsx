@@ -11,7 +11,11 @@ const WATER_DATE_KEY = 'water_glasses_date';
 
 export default function WaterIntakeScreen() {
   const { currentTheme } = useTheme();
-  const GLASS_SIZE = 200; // ml per glass
+  
+  // Updated to 250ml as per your instruction text
+  const GLASS_SIZE = 200; 
+  const goalGlasses = 10; // 8 glasses * 250ml = 2000ml
+  
   const [glassCount, setGlassCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -24,14 +28,14 @@ export default function WaterIntakeScreen() {
       const today = new Date().toDateString();
       const savedDate = await getData(WATER_DATE_KEY);
       
-      // Reset if it's a new day
       if (savedDate !== today) {
+        // Reset for a new day
         await saveData(WATER_GLASSES_KEY, 0);
         await saveData(WATER_DATE_KEY, today);
         setGlassCount(0);
       } else {
         const savedCount = await getData(WATER_GLASSES_KEY);
-        setGlassCount(savedCount || 0);
+        setGlassCount(Number(savedCount) || 0);
       }
     } catch (error) {
       console.error("Error loading water data:", error);
@@ -71,48 +75,41 @@ export default function WaterIntakeScreen() {
 
   const totalML = glassCount * GLASS_SIZE;
   const totalLiters = (totalML / 1000).toFixed(2);
-  const goalGlasses = 8; // 8 glasses = 2000ml
   const progressPercentage = Math.min((glassCount / goalGlasses) * 100, 100);
 
   if (isLoading) {
     return (
-      <View style={[styles.container, { backgroundColor: currentTheme.backgroundColor, justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color={currentTheme.accentColor} />
-        <Text style={{ color: currentTheme.accentColor, marginTop: 16, fontSize: 16 }}>
-          Loading...
-        </Text>
+      <View style={[styles.container, { backgroundColor: currentTheme?.backgroundColor || '#fff', justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color={currentTheme?.accentColor} />
       </View>
     );
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: currentTheme.backgroundColor }]}>
+    <View style={[styles.container, { backgroundColor: currentTheme?.backgroundColor }]}>
       <Pressable style={styles.backBtn} onPress={() => router.back()}>
         <Ionicons name="arrow-back" size={24} color="#111827" />
       </Pressable>
 
-      <Text style={[styles.title, { color: currentTheme.accentColor }]}>
+      <Text style={[styles.title, { color: currentTheme?.accentColor }]}>
         Water Intake Tracker
       </Text>
 
       {/* Main Card */}
-      <View style={[styles.mainCard, { backgroundColor: currentTheme.cardBackground }]}>
+      <View style={[styles.mainCard, { backgroundColor: currentTheme?.cardBackground }]}>
         <MaterialCommunityIcons 
           name="cup-water" 
           size={60} 
-          color={currentTheme.accentColor} 
+          color={currentTheme?.accentColor} 
         />
-
-        <Text style={[styles.glassCountText, { color: currentTheme.accentColor }]}>
+        <Text style={[styles.glassCountText, { color: currentTheme?.accentColor }]}>
           {glassCount}
         </Text>
         <Text style={styles.glassLabel}>
           Glass{glassCount !== 1 ? 'es' : ''} of Water
         </Text>
-
         <View style={styles.divider} />
-
-        <Text style={[styles.totalText, { color: currentTheme.accentColor }]}>
+        <Text style={[styles.totalText, { color: currentTheme?.accentColor }]}>
           {totalML} ml
         </Text>
         <Text style={styles.litersText}>
@@ -120,38 +117,36 @@ export default function WaterIntakeScreen() {
         </Text>
       </View>
 
-      {/* Add/Remove Buttons */}
+      {/* Control Buttons - SWAPPED: Add is now Left, Remove is now Right */}
       <View style={styles.controlButtons}>
+        <Pressable 
+          style={[styles.controlBtn, { backgroundColor: currentTheme?.cardBackground }]} 
+          onPress={addGlass}
+        >
+          <Ionicons name="add-circle" size={60} color={currentTheme?.accentColor} />
+        </Pressable>
+
         <Pressable 
           style={[
             styles.controlBtn, 
-            { backgroundColor: currentTheme.cardBackground, opacity: glassCount === 0 ? 0.5 : 1 }
+            { backgroundColor: currentTheme?.cardBackground, opacity: glassCount === 0 ? 0.5 : 1 }
           ]} 
           onPress={removeGlass}
           disabled={glassCount === 0}
         >
-          <Ionicons name="remove-circle" size={60} color={currentTheme.accentColor} />
-        </Pressable>
-
-        <Pressable 
-          style={[styles.controlBtn, { backgroundColor: currentTheme.cardBackground }]} 
-          onPress={addGlass}
-        >
-          <Ionicons name="add-circle" size={60} color={currentTheme.accentColor} />
+          <Ionicons name="remove-circle" size={60} color={currentTheme?.accentColor} />
         </Pressable>
       </View>
 
-      <Text style={[styles.tapText, { color: currentTheme.accentColor }]}>
-        Tap + to add or - to remove a glass (250ml)
+      <Text style={[styles.tapText, { color: currentTheme?.accentColor }]}>
+        Tap + to add or - to remove a glass ({GLASS_SIZE}ml)
       </Text>
 
       {/* Daily Goal Progress */}
-      <View style={[styles.goalContainer, { backgroundColor: currentTheme.cardBackground }]}>
+      <View style={[styles.goalContainer, { backgroundColor: currentTheme?.cardBackground }]}>
         <View style={styles.goalHeader}>
-          <Text style={[styles.goalTitle, { color: currentTheme.accentColor }]}>
-            Daily Goal
-          </Text>
-          <Text style={[styles.goalCount, { color: currentTheme.accentColor }]}>
+          <Text style={[styles.goalTitle, { color: currentTheme?.accentColor }]}> Daily Goal </Text>
+          <Text style={[styles.goalCount, { color: currentTheme?.accentColor }]}>
             {glassCount} / {goalGlasses}
           </Text>
         </View>
@@ -162,7 +157,7 @@ export default function WaterIntakeScreen() {
               styles.goalProgress, 
               { 
                 width: `${progressPercentage}%`,
-                backgroundColor: currentTheme.accentColor 
+                backgroundColor: currentTheme?.accentColor 
               }
             ]} 
           />
@@ -178,19 +173,16 @@ export default function WaterIntakeScreen() {
       {/* Reset Button */}
       {glassCount > 0 && (
         <Pressable 
-          style={[styles.resetBtn, { backgroundColor: currentTheme.cardBackground }]} 
+          style={[styles.resetBtn, { backgroundColor: currentTheme?.cardBackground }]} 
           onPress={resetCount}
         >
           <MaterialCommunityIcons name="refresh" size={24} color="#DC2626" />
-          <Text style={styles.resetBtnText}>
-            Reset Today
-          </Text>
+          <Text style={styles.resetBtnText}>Reset Today</Text>
         </Pressable>
       )}
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
