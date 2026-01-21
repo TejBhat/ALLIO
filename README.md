@@ -16,8 +16,3 @@ UI Library: React Native Paper
 
 📊 Daily Overview for tracking daily progress
 
-# Developer
-
-Tej M Bhat
-
-Designer & Developer
