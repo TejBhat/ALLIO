@@ -4,7 +4,13 @@ ALLIO is an all-in-one productivity mobile application.The app focuses on simpli
 
 Frontend: React Native, Expo
 
+Language: TypeScript
+
 UI Library: React Native Paper
+
+Navigation: Expo Router
+
+Local Storage: AsyncStorage 
 
 # Features
 
