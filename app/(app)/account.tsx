@@ -5,6 +5,9 @@ import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-nati
 import { TextInput } from "react-native-paper";
 import { useTheme } from "../context/ThemeContext";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { saveData, getData } from "../utils/storage";
+
+const USERNAME_KEY = 'user_username';
 
 export default function AccountScreen() {
   const { currentTheme } = useTheme();
@@ -12,23 +15,40 @@ export default function AccountScreen() {
   const [isEditing, setIsEditing] = useState(false);
   const [tempUsername, setTempUsername] = useState("");
 
-  // Load username on mount (you can add AsyncStorage here later)
+  // Load username on mount
   useEffect(() => {
-    // For now, check if username exists in state or load from storage
-    // You can add AsyncStorage.getItem('username') here later
+    loadUsername();
   }, []);
+
+  const loadUsername = async () => {
+    try {
+      const savedUsername = await getData(USERNAME_KEY);
+      if (savedUsername) {
+        setUsername(savedUsername);
+      }
+    } catch (error) {
+      console.error("Error loading username:", error);
+    }
+  };
 
   const handleEdit = () => {
     setTempUsername(username);
     setIsEditing(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (tempUsername.trim()) {
-      setUsername(tempUsername.trim());
+      const trimmedUsername = tempUsername.trim();
+      setUsername(trimmedUsername);
       setIsEditing(false);
-      // You can add AsyncStorage.setItem('username', tempUsername.trim()) here later
-      Alert.alert("Success", "Username saved successfully!");
+      
+      try {
+        await saveData(USERNAME_KEY, trimmedUsername);
+        Alert.alert("Success", "Username saved successfully!");
+      } catch (error) {
+        console.error("Error saving username:", error);
+        Alert.alert("Error", "Failed to save username");
+      }
     } else {
       Alert.alert("Error", "Username cannot be empty");
     }
