@@ -35,15 +35,15 @@ It helps users stay organized, build healthy habits, and track daily progress â€
 ## ðŸ“± App Screenshots
 
 <p align="center">
-  <img src="screenshots/dashboard.png" width="200" alt="Dashboard Screen" />
-  <img src="screenshots/togglemenu.png" width="200" alt="Side Menu" />
-  <img src="screenshots/notes.png" width="200" alt="Idea Notes" />
+  <img src="screenshots/dashboard.png" width="220" alt="Dashboard Screen" />
+  <img src="screenshots/togglemenu.png" width="220" alt="Side Menu" />
+  <img src="screenshots/notes.png" width="220" alt="Idea Notes" />
 </p>
 
 <p align="center">
-  <img src="screenshots/waterintake.png" width="200" alt="Water Intake Tracker" />
-  <img src="screenshots/calendar.png" width="200" alt="Calendar Check" />
-  <img src="screenshots/overview.png" width="200" alt="Daily Overview" />
+  <img src="screenshots/waterintake.png" width="220" alt="Water Intake Tracker" />
+  <img src="screenshots/calendar.png" width="220" alt="Calendar Check" />
+  <img src="screenshots/overview.png" width="220" alt="Daily Overview" />
 </p>
 
 
