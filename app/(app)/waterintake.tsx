@@ -2,7 +2,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
-import { Pressable, StyleSheet, Text, View, ActivityIndicator } from "react-native";
+import { Pressable, StyleSheet, Text, View, ActivityIndicator, Alert, Modal } from "react-native";
 import { useTheme } from "../context/ThemeContext";
 import { saveData, getData } from "../utils/storage";
 
@@ -12,12 +12,12 @@ const WATER_DATE_KEY = 'water_glasses_date';
 export default function WaterIntakeScreen() {
   const { currentTheme } = useTheme();
   
-  // Updated to 250ml as per your instruction text
-  const GLASS_SIZE = 200; 
-  const goalGlasses = 10; // 8 glasses * 250ml = 2000ml
+  const GLASS_SIZE = 200; // 200ml per glass
+  const goalGlasses = 10; // 10 glasses * 200ml = 2000ml
   
   const [glassCount, setGlassCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [showCelebration, setShowCelebration] = useState(false);
 
   useEffect(() => {
     loadWaterData();
@@ -58,6 +58,11 @@ export default function WaterIntakeScreen() {
     const newCount = glassCount + 1;
     setGlassCount(newCount);
     await saveWaterData(newCount);
+
+    // Check if goal is reached
+    if (newCount === goalGlasses) {
+      setShowCelebration(true);
+    }
   };
 
   const removeGlass = async () => {
@@ -69,8 +74,24 @@ export default function WaterIntakeScreen() {
   };
 
   const resetCount = async () => {
-    setGlassCount(0);
-    await saveWaterData(0);
+    Alert.alert(
+      "Reset Water Intake",
+      "Are you sure you want to reset today's water intake?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        {
+          text: "Reset",
+          style: "destructive",
+          onPress: async () => {
+            setGlassCount(0);
+            await saveWaterData(0);
+          }
+        }
+      ]
+    );
   };
 
   const totalML = glassCount * GLASS_SIZE;
@@ -117,7 +138,7 @@ export default function WaterIntakeScreen() {
         </Text>
       </View>
 
-      {/* Control Buttons - SWAPPED: Add is now Left, Remove is now Right */}
+      {/* Control Buttons */}
       <View style={styles.controlButtons}>
         <Pressable 
           style={[styles.controlBtn, { backgroundColor: currentTheme?.cardBackground }]} 
@@ -145,7 +166,7 @@ export default function WaterIntakeScreen() {
       {/* Daily Goal Progress */}
       <View style={[styles.goalContainer, { backgroundColor: currentTheme?.cardBackground }]}>
         <View style={styles.goalHeader}>
-          <Text style={[styles.goalTitle, { color: currentTheme?.accentColor }]}> Daily Goal </Text>
+          <Text style={[styles.goalTitle, { color: currentTheme?.accentColor }]}>Daily Goal</Text>
           <Text style={[styles.goalCount, { color: currentTheme?.accentColor }]}>
             {glassCount} / {goalGlasses}
           </Text>
@@ -180,9 +201,41 @@ export default function WaterIntakeScreen() {
           <Text style={styles.resetBtnText}>Reset Today</Text>
         </Pressable>
       )}
+
+      {/* Celebration Modal */}
+      <Modal
+        visible={showCelebration}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowCelebration(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: currentTheme?.cardBackground }]}>
+            <View style={styles.celebrationIcon}>
+              <Text style={styles.celebrationEmoji}>🎉</Text>
+            </View>
+            <Text style={[styles.celebrationTitle, { color: currentTheme?.accentColor }]}>
+              Congratulations!
+            </Text>
+            <Text style={styles.celebrationText}>
+              You've completed today's water intake goal of {goalGlasses} glasses!
+            </Text>
+            <Text style={styles.celebrationSubtext}>
+              Keep up the great hydration habit! 💧
+            </Text>
+            <Pressable 
+              style={[styles.celebrationBtn, { backgroundColor: currentTheme?.accentColor }]}
+              onPress={() => setShowCelebration(false)}
+            >
+              <Text style={styles.celebrationBtnText}>Awesome!</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -315,5 +368,56 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     color: "#DC2626",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  modalContent: {
+    borderRadius: 24,
+    padding: 32,
+    alignItems: "center",
+    width: "100%",
+    maxWidth: 400,
+    elevation: 8,
+  },
+  celebrationIcon: {
+    marginBottom: 20,
+  },
+  celebrationEmoji: {
+    fontSize: 80,
+  },
+  celebrationTitle: {
+    fontSize: 28,
+    fontWeight: "800",
+    marginBottom: 16,
+    textAlign: "center",
+  },
+  celebrationText: {
+    fontSize: 16,
+    color: "#ffeaa7",
+    textAlign: "center",
+    marginBottom: 12,
+    lineHeight: 24,
+  },
+  celebrationSubtext: {
+    fontSize: 14,
+    color: "#999",
+    textAlign: "center",
+    marginBottom: 24,
+  },
+  celebrationBtn: {
+    paddingHorizontal: 40,
+    paddingVertical: 14,
+    borderRadius: 12,
+    elevation: 4,
+  },
+  celebrationBtnText: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#1a1a1a",
   },
 });
