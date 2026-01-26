@@ -8,14 +8,20 @@ export const themes = [
     accentColor: "#ffd84d",
     menuBackground: "#7a4a00",
     menuText: "#ffff00",
+    inputBackground: "#5a3400",  // ADDED: Dark input background
+    inputText: "#ffd84d",         // ADDED: Light input text
+    placeholderText: "#999", 
   },
   
   {
-    backgroundColor: "#faf8f3",      
-    cardBackground: "#808080",       
-    accentColor: "#000000",          
-    menuBackground: "#808080",       
+    backgroundColor: "#faf8f3",
+    cardBackground: "#e5e5e5",    // CHANGED: Lighter gray for better contrast
+    accentColor: "#000000",
+    menuBackground: "#e5e5e5",    // CHANGED: Lighter gray
     menuText: "#000000",
+    inputBackground: "#ffffff",   // ADDED: White input background
+    inputText: "#000000",         // ADDED: Black input text
+    placeholderText: "#666",
   },
 ];
 
@@ -25,6 +31,9 @@ export interface ThemeColors {
   accentColor: string;
   menuBackground: string;
   menuText: string;
+  inputBackground:string;
+  inputText:string;
+  placeholderText:string;
 }
 
 interface ThemeContextType {
