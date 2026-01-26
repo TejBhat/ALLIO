@@ -151,7 +151,7 @@ export default function NotesScreen() {
 
         <TextInput
           placeholder="Title"
-          placeholderTextColor="#999"
+          placeholderTextColor={currentTheme.placeholderText}
           textColor={currentTheme.accentColor}
           value={currentNote.title}
           onChangeText={(text) => setCurrentNote({ ...currentNote, title: text })}
@@ -163,7 +163,7 @@ export default function NotesScreen() {
 
         <TextInput
           placeholder="Start writing..."
-          placeholderTextColor="#999"
+          placeholderTextColor={currentTheme.placeholderText}
           textColor={currentTheme.accentColor}
           value={currentNote.content}
           onChangeText={(text) => setCurrentNote({ ...currentNote, content: text })}
