@@ -343,16 +343,16 @@ export default function CalendarCheckScreen() {
 
               <View style={styles.addTaskContainer}>
                 <TextInput
-                  style={[styles.taskInput, { color: currentTheme.accentColor }]}
+                  style={[styles.taskInput, { backgroundColor: currentTheme.inputBackground,color:currentTheme.inputText}]}
                   placeholder="Add a task..."
-                  placeholderTextColor="#666"
+                  placeholderTextColor={currentTheme.placeholderText}
                   value={taskText}
                   onChangeText={setTaskText}
                   onSubmitEditing={addTask}
                   returnKeyType="done"
                 />
                 <Pressable 
-                  style={[styles.addTaskBtn, { opacity: taskText.trim() ? 1 : 0.5 }]}
+                  style={[styles.addTaskBtn,{backgroundColor:currentTheme.inputBackground}, { opacity: taskText.trim() ? 1 : 0.5 }]}
                   onPress={addTask}
                   disabled={!taskText.trim()}
                 >
@@ -415,9 +415,9 @@ export default function CalendarCheckScreen() {
             </View>
 
             <TextInput
-              style={[styles.noteInput, { color: currentTheme.accentColor }]}
+              style={[styles.noteInput, { backgroundColor:currentTheme.inputBackground,color:currentTheme.inputText }]}
               placeholder="Write your note here..."
-              placeholderTextColor="#666"
+              placeholderTextColor={currentTheme.placeholderText}
               value={noteText}
               onChangeText={setNoteText}
               multiline
@@ -438,7 +438,7 @@ export default function CalendarCheckScreen() {
               </Pressable>
 
               <Pressable 
-                style={[styles.modalBtn, styles.saveBtn, { backgroundColor: currentTheme.accentColor }]}
+                style={[styles.modalBtn, styles.saveBtn, { backgroundColor: currentTheme.inputBackground }]}
                 onPress={saveNote}
               >
                 <Text style={styles.saveBtnText}>Save Note</Text>
@@ -572,13 +572,11 @@ const styles = StyleSheet.create({
   },
   taskInput: {
     flex: 1,
-    backgroundColor: "#5a3400",
-    borderRadius: 12,
-    padding: 12,
-    fontSize: 15,
+  borderRadius: 12,
+  padding: 12,
+  fontSize: 15,
   },
   addTaskBtn: {
-    backgroundColor: "#5a3400",
     width: 44,
     height: 44,
     borderRadius: 12,
@@ -647,7 +645,6 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   noteInput: {
-    backgroundColor: "#5a3400",
     borderRadius: 12,
     padding: 16,
     fontSize: 16,
@@ -665,7 +662,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   cancelBtn: {
-    backgroundColor: "#5a3400",
   },
   saveBtn: {
     // backgroundColor set dynamically
