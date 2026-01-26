@@ -4,7 +4,9 @@ import { router, useFocusEffect } from "expo-router";
 import { Pressable, ScrollView, StyleSheet, Text, View, ActivityIndicator } from "react-native";
 import { useTheme } from "../context/ThemeContext";
 import { useState, useCallback } from "react";
-import { getWaterIntake, getStreak, updateStreak, getNotes, getTasks } from "../utils/storage";
+import { getData, getStreak, updateStreak, getNotes, getTasks } from "../utils/storage";
+
+const WATER_GLASSES_KEY = 'water_glasses_count';
 
 export default function OverviewScreen() {
   const { currentTheme } = useTheme();
@@ -47,10 +49,9 @@ export default function OverviewScreen() {
   const loadOverviewData = async () => {
     setIsLoading(true);
     try {
-      // Load water intake (converts ml to glasses)
-      const waterML = await getWaterIntake();
-      const glasses = Math.floor(waterML / 250); // 250ml per glass
-      setWaterGlasses(glasses);
+      // Load water intake directly from glasses count
+      const savedGlasses = await getData(WATER_GLASSES_KEY);
+      setWaterGlasses(Number(savedGlasses) || 0);
 
       // Load and update streak
       const streak = await updateStreak();
@@ -169,7 +170,7 @@ export default function OverviewScreen() {
           <Text style={[styles.progressTitle, { color: currentTheme.accentColor }]}>
             Today's Progress
           </Text>
-          {waterGlasses >= 8 && (
+          {waterGlasses >= 10 && (
             <View style={styles.achievementRow}>
               <Ionicons name="checkmark-circle" size={20} color="#34d399" />
               <Text style={styles.achievementText}>✨ Hydration goal reached!</Text>
