@@ -72,7 +72,7 @@ It helps users stay organized, build healthy habits, and track daily progress â€
 
 ## Availability
 
-ðŸš§ Google Play Store release coming soon
+Google Play Store release coming soon
 ALLIO will be published shortly once final testing and optimization are complete.
 
 
