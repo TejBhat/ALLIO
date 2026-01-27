@@ -102,13 +102,11 @@ export default function OverviewScreen() {
         <Ionicons name="arrow-back" size={24} color="#111827" />
       </Pressable>
 
-      {/* Greeting Header */}
       <View style={styles.header}>
         <Text style={[styles.greeting, { color: currentTheme.accentColor }]}>{greeting}!</Text>
         <Text style={styles.date}>{dateString}</Text>
       </View>
 
-      {/* Streak Card */}
       <View style={[styles.streakCard, { backgroundColor: currentTheme.cardBackground }]}>
         <Ionicons name="flame" size={40} color="#ff6b35" />
         <View style={styles.streakInfo}>
@@ -122,12 +120,10 @@ export default function OverviewScreen() {
         </Text>
       </View>
 
-      {/* Today's Stats */}
       <View style={styles.section}>
         <Text style={[styles.sectionTitle, { color: currentTheme.accentColor }]}>Today's Activity</Text>
         
         <View style={styles.statsGrid}>
-          {/* Water */}
           <Pressable 
             style={[styles.statCard, { backgroundColor: currentTheme.cardBackground }]}
             onPress={() => router.push("/waterintake")}
@@ -137,8 +133,6 @@ export default function OverviewScreen() {
             <Text style={styles.statLabel}>Glasses</Text>
             <Text style={styles.statSubtext}>Water</Text>
           </Pressable>
-
-          {/* Tasks */}
           <Pressable 
             style={[styles.statCard, { backgroundColor: currentTheme.cardBackground }]}
             onPress={() => router.push("/calendarcheck")}
@@ -151,7 +145,6 @@ export default function OverviewScreen() {
             <Text style={styles.statSubtext}>Completed</Text>
           </Pressable>
 
-          {/* Notes */}
           <Pressable 
             style={[styles.statCard, { backgroundColor: currentTheme.cardBackground }]}
             onPress={() => router.push("/notes")}
@@ -191,13 +184,11 @@ export default function OverviewScreen() {
         </View>
       )}
 
-      {/* Daily Quote */}
       <View style={[styles.quoteCard, { backgroundColor: currentTheme.cardBackground }]}>
         <Ionicons name="bulb-outline" size={24} color={currentTheme.accentColor} />
         <Text style={[styles.quoteText, { color: currentTheme.accentColor }]}>"{dailyQuote}"</Text>
       </View>
 
-      {/* Weekly Summary - Simple Visual */}
       <View style={styles.section}>
         <Text style={[styles.sectionTitle, { color: currentTheme.accentColor }]}>This Week</Text>
         
@@ -229,7 +220,6 @@ export default function OverviewScreen() {
         </View>
       </View>
 
-      {/* Quick Actions */}
       <View style={styles.section}>
         <Text style={[styles.sectionTitle, { color: currentTheme.accentColor }]}>Quick Start</Text>
         
@@ -266,8 +256,6 @@ export default function OverviewScreen() {
           </View>
         </Pressable>
       </View>
-
-      {/* Refresh Button */}
       <Pressable 
         style={[styles.refreshButton, { backgroundColor: currentTheme.cardBackground }]}
         onPress={loadOverviewData}
