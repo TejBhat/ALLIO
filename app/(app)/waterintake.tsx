@@ -116,7 +116,6 @@ export default function WaterIntakeScreen() {
         Water Intake Tracker
       </Text>
 
-      {/* Main Card */}
       <View style={[styles.mainCard, { backgroundColor: currentTheme?.cardBackground }]}>
         <MaterialCommunityIcons 
           name="cup-water" 
@@ -138,7 +137,6 @@ export default function WaterIntakeScreen() {
         </Text>
       </View>
 
-      {/* Control Buttons */}
       <View style={styles.controlButtons}>
         <Pressable 
           style={[styles.controlBtn, { backgroundColor: currentTheme?.cardBackground }]} 
@@ -163,7 +161,6 @@ export default function WaterIntakeScreen() {
         Tap + to add or - to remove a glass ({GLASS_SIZE}ml)
       </Text>
 
-      {/* Daily Goal Progress */}
       <View style={[styles.goalContainer, { backgroundColor: currentTheme?.cardBackground }]}>
         <View style={styles.goalHeader}>
           <Text style={[styles.goalTitle, { color: currentTheme?.accentColor }]}>Daily Goal</Text>
@@ -191,7 +188,6 @@ export default function WaterIntakeScreen() {
         </Text>
       </View>
 
-      {/* Reset Button */}
       {glassCount > 0 && (
         <Pressable 
           style={[styles.resetBtn, { backgroundColor: currentTheme?.cardBackground }]} 
@@ -202,7 +198,6 @@ export default function WaterIntakeScreen() {
         </Pressable>
       )}
 
-      {/* Celebration Modal */}
       <Modal
         visible={showCelebration}
         transparent
