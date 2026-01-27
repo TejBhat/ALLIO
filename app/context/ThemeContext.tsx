@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-// Theme definitions - Replace theme2 colors with your desired colors
 export const themes = [
   {
     backgroundColor: "#000000",
@@ -8,19 +7,19 @@ export const themes = [
     accentColor: "#ffd84d",
     menuBackground: "#7a4a00",
     menuText: "#ffff00",
-    inputBackground: "#5a3400",  // ADDED: Dark input background
-    inputText: "#ffd84d",         // ADDED: Light input text
+    inputBackground: "#5a3400",  
+    inputText: "#ffd84d",         
     placeholderText: "#999", 
   },
   
   {
     backgroundColor: "#faf8f3",
-    cardBackground: "#e5e5e5",    // CHANGED: Lighter gray for better contrast
+    cardBackground: "#e5e5e5",    
     accentColor: "#000000",
-    menuBackground: "#e5e5e5",    // CHANGED: Lighter gray
+    menuBackground: "#e5e5e5",    
     menuText: "#000000",
-    inputBackground: "#ffffff",   // ADDED: White input background
-    inputText: "#000000",         // ADDED: Black input text
+    inputBackground: "#ffffff",   
+    inputText: "#000000",         
     placeholderText: "#666",
   },
 ];
