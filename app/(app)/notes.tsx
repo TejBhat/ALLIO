@@ -176,8 +176,6 @@ export default function NotesScreen() {
       </View>
     );
   }
-
-  // Notes list view
   return (
     <View style={[styles.container, { backgroundColor: currentTheme.backgroundColor }]}>
       <View style={styles.header}>
