@@ -26,6 +26,10 @@ It helps users stay organized, build healthy habits, and track daily progress â€
 **UI & Navigation**
 - React Native Paper
 - Expo Router
+- Expo Theme
+
+**Device Features**
+- Expo Calendar
 
 **State & Storage**
 - AsyncStorage (Local persistent storage)
