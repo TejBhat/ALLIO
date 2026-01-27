@@ -229,13 +229,12 @@ export default function CalendarCheckScreen() {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header */}
+        
         <View style={styles.header}>
           <Text style={[styles.title, { color: currentTheme.accentColor }]}>Calendar Check</Text>
           <Text style={styles.subtitle}>Tap to select • Long press to add notes</Text>
         </View>
 
-        {/* Calendar */}
         <View style={[styles.calendarContainer, { backgroundColor: currentTheme.cardBackground }]}>
           <Calendar
             current={today}
@@ -265,7 +264,7 @@ export default function CalendarCheckScreen() {
           />
         </View>
 
-        {/* Selected Date Info */}
+        
         {selectedDate && (
           <View style={styles.selectedDateSection}>
             <View style={styles.dateHeader}>
@@ -306,7 +305,6 @@ export default function CalendarCheckScreen() {
               </View>
             </View>
 
-            {/* Note Section */}
             <View style={[styles.noteSection, { backgroundColor: currentTheme.cardBackground }]}>
               <View style={styles.sectionHeader}>
                 <MaterialIcons name="note" size={20} color={currentTheme.accentColor} />
@@ -331,7 +329,7 @@ export default function CalendarCheckScreen() {
               )}
             </View>
 
-            {/* Tasks Section */}
+            
             <View style={[styles.tasksSection, { backgroundColor: currentTheme.cardBackground }]}>
               <View style={styles.sectionHeader}>
                 <MaterialIcons name="checklist" size={20} color={currentTheme.accentColor} />
@@ -387,7 +385,7 @@ export default function CalendarCheckScreen() {
         )}
       </ScrollView>
 
-      {/* Note Modal */}
+      
       <Modal
         visible={showNoteModal}
         transparent={true}
