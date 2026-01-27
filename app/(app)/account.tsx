@@ -80,7 +80,6 @@ export default function AccountScreen() {
       </View>
 
       <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
-        {/* Profile Photo Section */}
         <View style={styles.profileSection}>
           <View style={[styles.avatarContainer, { backgroundColor: currentTheme.cardBackground }]}>
             {username ? (
