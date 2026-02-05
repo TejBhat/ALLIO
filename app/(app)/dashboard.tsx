@@ -27,7 +27,7 @@ export default function DashboardScreen(){
         
             <Pressable style={style.menuButton} onPress={toggleMenu}>
                 <View style={style.menuIcon}>
-                    <Octicons name="three-bars" size={28} color="#111827" />
+                    <Octicons name="three-bars" size={28} color="#ffff00" />
                 </View>
                 
             </Pressable>
@@ -111,7 +111,7 @@ const style=StyleSheet.create({
      width: 44,
     height: 44,
     borderRadius: 12,
-    backgroundColor: "#ffffff",
+    backgroundColor: "#7a4a00",
     justifyContent: "center",
     alignItems: "center",
     elevation: 3,
