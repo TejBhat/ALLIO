@@ -10,7 +10,6 @@ const WATER_GLASSES_KEY = 'water_glasses_count';
 
 export default function OverviewScreen() {
   const { currentTheme } = useTheme();
-  
   const [waterGlasses, setWaterGlasses] = useState(0);
   const [tasksCompleted, setTasksCompleted] = useState(0);
   const [totalTasks, setTotalTasks] = useState(0);
